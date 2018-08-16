@@ -1,13 +1,14 @@
 package com.example.luisfilho.listnativecontacts
 
+import android.content.Intent
+import android.net.Uri
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import de.hdodenhof.circleimageview.CircleImageView
@@ -17,8 +18,7 @@ import kotlin.collections.ArrayList
 /**
  * Created by luis.filho on 14/08/2018.
  */
-class MyAdapter(val myDataset: ArrayList<ContactInformation>) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
-
+class MyAdapter(var myDataset: ArrayList<ContactInformation>) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.txtId.text = myDataset[position].id
@@ -29,6 +29,9 @@ class MyAdapter(val myDataset: ArrayList<ContactInformation>) : RecyclerView.Ada
                 apply(RequestOptions().fitCenter().centerCrop().override(150, 150)).
                 into(holder.imgUser)
         holder.txtPhone.text = myDataset[position].phone
+        holder.itemView.setOnClickListener{
+          //Perform Click
+        }
     }
 
 
@@ -47,5 +50,12 @@ class MyAdapter(val myDataset: ArrayList<ContactInformation>) : RecyclerView.Ada
     override fun getItemCount(): Int {
         return myDataset.size
     }
+
+    fun updateRecycle(listContacts : ArrayList<ContactInformation>){
+        myDataset = ArrayList<ContactInformation>()
+        myDataset.addAll(listContacts)
+        notifyDataSetChanged()
+    }
+
 
 }

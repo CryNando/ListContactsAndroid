@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ListNativeContacts</string>
-    <string name="search">Search</string>
+    <string name="search_title">Search</string>
 </resources>
