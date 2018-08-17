@@ -1,34 +1,25 @@
 package com.example.luisfilho.listnativecontacts
 
 import android.Manifest
-import android.content.ContentResolver
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.Menu
 import android.support.v7.widget.SearchView
 import android.util.Log
+import android.view.Menu
 import android.widget.Toast
-import java.io.BufferedInputStream
-import java.io.InputStream
-
 
 class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewManager : RecyclerView.LayoutManager
     private var viewAdapter = MyAdapter(ArrayList<ContactInformation>())
-    val contact = ArrayList<ContactInformation>()
+    var contact = ArrayList<ContactInformation>()
     val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0
 
 
@@ -46,6 +37,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), MY_PERMISSIONS_REQUEST_READ_CONTACTS)
             }
         }else {
+            Log.e("result" , "-> ok ")
             loadContacts()
         }
 }
@@ -83,47 +75,10 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     }
 
-    private fun getContacts() : ArrayList<ContactInformation> {
-        val resolver: ContentResolver = contentResolver
-        val cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
-        val defaultImg: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.avatar)
-
-        while (cursor.moveToNext()) {
-            val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            val name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-            val imgUser = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI))
-            val hasPhone = cursor.getString((cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)))
-            var phone = ""
-            if (hasPhone != null) {
-                phone = getPhoneNumber(id)
-            }
-
-            if (imgUser == null) {
-                contact.add(ContactInformation(id, name, defaultImg,phone))
-            } else {
-                val imgUser : Bitmap = BitmapFactory.decodeStream(getPhoto(id))
-                contact.add(ContactInformation(id, name, imgUser,phone))
-            }
-        }
-         return contact
-    }
-
-    private fun getPhoto(id : String) : BufferedInputStream{
-        val photoContact : Uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, id)
-        val photoStream : InputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver, photoContact)
-        return BufferedInputStream(photoStream)
-
-    }
-
-    private fun getPhoneNumber(id : String) : String{
-        val cursorPhone : Cursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null)
-        cursorPhone.moveToFirst()
-        val number = cursorPhone.getString(cursorPhone.getColumnIndex("data1"))
-        return number
-    }
-
     private fun loadContacts(){
-        val myDataset = getContacts()
+        var getContats : getContactsData = getContactsData(this)
+        val myDataset = getContats.execute().get()
+        contact = myDataset
 
         viewManager = LinearLayoutManager(this)
         viewAdapter = MyAdapter(myDataset)
